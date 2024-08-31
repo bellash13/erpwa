@@ -13,7 +13,7 @@ export class AuthService {
   private localUser: User | null = null;
   private onlineUser: User | null = null;
   private online$ = new BehaviorSubject<boolean>(navigator.onLine);
-  private apiUrl = "https://localhost:5000";
+  private apiUrl = "https://localhost:5001";
 
   constructor(private router: Router, private http: HttpClient) {
     this.localUser = null;

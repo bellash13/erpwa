@@ -9,7 +9,7 @@ import { Customer } from './models/customer.model';
   providedIn: 'root',
 })
 export class CustomerService extends EncryptDataService<Customer> {
-  private apiUrl = 'https://localhost:5000/customers'; // Replace with your API URL
+  private apiUrl = 'https://localhost:5001/customers'; // Replace with your API URL
 
   constructor(authService: AuthService, private http: HttpClient) {
     super(authService);
