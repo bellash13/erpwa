@@ -1,7 +1,7 @@
-<div class="login-container">
+<div class="container login-container">
     <h2>Login</h2>
     <form (ngSubmit)="login()">
-        <div>
+        <div class="form-group">
             <label for="username">Username</label>
             <input id="username" [(ngModel)]="username" name="username" required>
         </div>
@@ -10,6 +10,6 @@
             <input id="password" type="password" [(ngModel)]="password" name="password" required>
         </div>
         <button type="submit">Login</button>
-        <div *ngIf="errorMessage">{{errorMessage}}</div>
+        <div *ngIf="errorMessage" class="text-danger">{{errorMessage}}</div>
     </form>
 </div>

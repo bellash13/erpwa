@@ -99,7 +99,7 @@ export class AuthService {
     return this.localUser ? this.localUser.secretKey : '';
   }
 
-  async register(username: string, password: string): Promise<void> {
+  async register(username: string, password: string): Promise<boolean> {
     const secretKey = CryptoJS.SHA256(password).toString();
     const newUser: User = {
       username: username,
@@ -110,6 +110,7 @@ export class AuthService {
     const users: any = (await localforage.getItem('users')) || {};
     users[username] = this.encryptData(newUser, password);
     await localforage.setItem('users', users);
+    return true;
   }
 
   async clearLocalData(): Promise<void> {

@@ -1,0 +1,22 @@
+<div class="register-container">
+    <h2>Register</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="register()">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input id="username" formControlName="username" type="text" class="form-control" required />
+        <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched" class="text-danger">
+          Username is required.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input id="password" formControlName="password" type="password" class="form-control" required />
+        <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-danger">
+          Password is required and must be at least 6 characters long.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid">Register</button>
+      <div *ngIf="errorMessage" class="text-danger mt-3">{{ errorMessage }}</div>
+    </form>
+  </div>
+  
