@@ -1,0 +1,26 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{ customer.id ? 'Edit Customer' : 'Add New Customer' }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
+</div>
+<div class="modal-body">
+    <form [formGroup]="customerForm">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input id="name" formControlName="name" type="text" class="form-control" required />
+            <div *ngIf="customerForm.get('name')?.invalid && customerForm.get('name')?.touched" class="text-danger">
+                Name is required.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input id="email" formControlName="email" type="email" class="form-control" required />
+            <div *ngIf="customerForm.get('email')?.invalid && customerForm.get('email')?.touched" class="text-danger">
+                A valid email is required.
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="dismiss()">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="customerForm.invalid" (click)="save()">Save</button>
+</div>
