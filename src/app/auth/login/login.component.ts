@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AuthService } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -23,14 +23,11 @@ export class LoginComponent {
       this.username,
       this.password
     );
-    if (isAuthenticatedLocally) {
-      const isAuthenticatedOnline = await this.authService.loginOnline(
-        this.username,
-        this.password
-      );
-      if (isAuthenticatedOnline) {
-        await this.authService.syncDataOnOnline();
-      }
+    const isAuthenticatedOnline = await this.authService.loginOnline(
+      this.username,
+      this.password
+    );
+    if (isAuthenticatedLocally && isAuthenticatedOnline) {
       this.router.navigate(['/customers']);
     } else {
       this.errorMessage = 'Invalid credentials';

@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import localforage from 'localforage';
+import { Customer } from './models/customer.model';
 import { AuthService } from '../shared/services/auth.service';
 import { EncryptDataService } from '../shared/services/encrypt-data.service';
-import { Customer } from './models/customer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -95,12 +95,10 @@ export class CustomerService extends EncryptDataService<Customer> {
     await localforage.clear();
   }
 
-  private async createCustomerOnServer(
-    customer: Customer
-  ): Promise<Customer | null> {
+  async createCustomerOnServer(customer: Customer): Promise<Customer | null> {
     try {
       const response = await this.http
-        .post<Customer>(this.apiUrl, customer)
+        .post<Customer>(`${this.apiUrl}`, customer)
         .toPromise();
       return response ?? null;
     } catch (error) {
@@ -109,7 +107,7 @@ export class CustomerService extends EncryptDataService<Customer> {
     }
   }
 
-  private async updateCustomerOnServer(customer: Customer): Promise<void> {
+  async updateCustomerOnServer(customer: Customer): Promise<void> {
     try {
       await this.http
         .put(`${this.apiUrl}/${customer.id}`, customer)
@@ -119,11 +117,53 @@ export class CustomerService extends EncryptDataService<Customer> {
     }
   }
 
-  private async deleteCustomerOnServer(id: string): Promise<void> {
+  async deleteCustomerOnServer(id: string): Promise<void> {
     try {
       await this.http.delete(`${this.apiUrl}/${id}`).toPromise();
     } catch (error) {
       console.error('Failed to delete customer on server', error);
     }
+  }
+
+  async replaceLocalCustomerWithServer(
+    localId: string,
+    serverCustomer: Customer
+  ): Promise<void> {
+    await this.removeCustomerFromLocal(localId);
+    await this.saveCustomerLocally(serverCustomer);
+  }
+
+  async clearSyncStatus(id: string): Promise<void> {
+    const customer = await this.getCustomerById(id);
+    if (customer) {
+      customer.syncStatus = undefined;
+      await this.saveCustomerLocally(customer);
+    }
+  }
+
+  async removeCustomerFromLocal(id: string): Promise<void> {
+    await localforage.removeItem(id);
+  }
+
+  async fetchAndSyncServerData(): Promise<void> {
+    try {
+      const serverCustomers =
+        (await this.http.get<Customer[]>(`${this.apiUrl}`).toPromise()) || [];
+
+      for (const serverCustomer of serverCustomers) {
+        await this.saveCustomerLocally(serverCustomer);
+      }
+    } catch (error) {
+      console.error('Failed to fetch and sync server data', error);
+    }
+  }
+
+  private async saveCustomerLocally(customer: Customer): Promise<void> {
+    await localforage.setItem(customer.id, JSON.stringify(customer));
+  }
+
+  private async getCustomerById(id: string): Promise<Customer | null> {
+    const customerData = await localforage.getItem(id);
+    return customerData ? JSON.parse(customerData as string) : null;
   }
 }

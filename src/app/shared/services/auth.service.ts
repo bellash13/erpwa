@@ -13,7 +13,7 @@ export class AuthService {
   private localUser: User | null = null;
   private onlineUser: User | null = null;
   private online$ = new BehaviorSubject<boolean>(navigator.onLine);
-  private apiUrl = "https://localhost:5001";
+  private apiUrl = 'https://localhost:5001/auth'; // Set your actual API URL
 
   constructor(private router: Router, private http: HttpClient) {
     this.localUser = null;
@@ -100,17 +100,31 @@ export class AuthService {
   }
 
   async register(username: string, password: string): Promise<boolean> {
-    const secretKey = CryptoJS.SHA256(password).toString();
-    const newUser: User = {
-      username: username,
-      password: secretKey,
-      secretKey: secretKey,
+    const payload = {
+      username,
+      passwordHash: CryptoJS.SHA256(password).toString(),
+      secretKey: this.generateSecretKey(username),
     };
 
-    const users: any = (await localforage.getItem('users')) || {};
-    users[username] = this.encryptData(newUser, password);
-    await localforage.setItem('users', users);
-    return true;
+    try {
+      const response = await this.http
+        .post<User>(`${this.apiUrl}/register`, payload)
+        .toPromise();
+      if (response) {
+        const users: any = (await localforage.getItem('users')) || {};
+        users[username] = this.encryptData(response, password);
+        await localforage.setItem('users', users);
+        this.router.navigate(['/']);
+        return true;
+      }
+    } catch (error) {
+      console.error('Registration failed', error);
+    }
+    return false;
+  }
+
+  private generateSecretKey(username: string): string {
+    return `${username}-secret-key`;
   }
 
   async clearLocalData(): Promise<void> {
@@ -138,7 +152,9 @@ export class AuthService {
   }
 
   private async syncWithServer(): Promise<void> {
-    // Implement the logic to sync your data with the server
-    // This should include fetching any changes from the server and syncing local changes
+    try {
+    } catch (error) {
+      console.error('Failed to sync data with the server', error);
+    }
   }
 }
